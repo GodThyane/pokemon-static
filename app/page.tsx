@@ -1,12 +1,12 @@
 import React from 'react';
-import { fetchPokemonList } from '@/app/services/pokemon.service';
 import { SmallPokemon } from '@/app/models/pokemon-list.model';
 import PokemonList from '@/components/pokemon/PokemonList/PokemonList';
+import { getPokemonList } from '@/app/services/pokemon.service';
 
 export default async function HomePage() {
-   const getPokemonList: () => Promise<SmallPokemon[]> = async () => {
-      const { data } = await fetchPokemonList();
-      return data.results.map((pokemon: SmallPokemon, index) => ({
+   const fetchPokemonList: () => Promise<SmallPokemon[]> = async () => {
+      const { results } = await getPokemonList();
+      return results.map((pokemon: SmallPokemon, index) => ({
          ...pokemon,
          id: index + 1,
          image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${
@@ -15,7 +15,7 @@ export default async function HomePage() {
       }));
    };
 
-   const pokemonList = await getPokemonList();
+   const pokemonList = await fetchPokemonList();
 
    return (
       <>

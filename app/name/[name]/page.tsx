@@ -1,20 +1,27 @@
 import React from 'react';
-import { fetchPokemonList } from '@/app/services/pokemon.service';
 import { Pokemon } from '@/app/pokemon/models/pokemon.model';
-import { fetchPokemon } from '@/app/pokemon/services/pokemon.id.service';
+import { getPokemon } from '@/app/pokemon/services/pokemon.id.service';
 import PokemonInfoCard from '@/components/pokemon/PokemonInfoCard/PokemonInfoCard';
+import { redirect } from 'next/navigation';
+import { getPokemonList } from '@/app/services/pokemon.service';
 
 interface Props {
    name: string;
 }
 
 const PokemonNamePage = async ({ params: { name } }: { params: Props }) => {
-   const getPokemon: () => Promise<Pokemon> = async () => {
-      const { data } = await fetchPokemon(name);
-      return data;
+   const fetchPokemon: () => Promise<Pokemon | null> = async () => {
+      try {
+         return await getPokemon(name);
+      } catch (error) {
+         return null;
+      }
    };
+   const pokemon = await fetchPokemon();
 
-   const pokemon = await getPokemon();
+   if (!pokemon) {
+      redirect('/');
+   }
 
    return <PokemonInfoCard pokemon={pokemon} />;
 };
@@ -22,7 +29,7 @@ const PokemonNamePage = async ({ params: { name } }: { params: Props }) => {
 export default PokemonNamePage;
 
 export async function generateStaticParams() {
-   const { data } = await fetchPokemonList();
-   const pokemonList = data.results.map((pokemon) => pokemon.name);
+   const { results } = await getPokemonList();
+   const pokemonList = results.map((pokemon) => pokemon.name);
    return pokemonList.map((name) => ({ name }));
 }

@@ -1,19 +1,26 @@
 import React from 'react';
-import { fetchPokemon } from '@/app/pokemon/services/pokemon.id.service';
+import { getPokemon } from '@/app/pokemon/services/pokemon.id.service';
 import { Pokemon } from '@/app/pokemon/models/pokemon.model';
 import PokemonInfoCard from '@/components/pokemon/PokemonInfoCard/PokemonInfoCard';
+import { redirect } from 'next/navigation';
 
 interface Props {
    id: string;
 }
 
 const PokemonPage = async ({ params: { id } }: { params: Props }) => {
-   const getPokemon: () => Promise<Pokemon> = async () => {
-      const { data } = await fetchPokemon(id);
-      return data;
+   const fetchPokemon: () => Promise<Pokemon | null> = async () => {
+      try {
+         return await getPokemon(id);
+      } catch (error) {
+         return null;
+      }
    };
+   const pokemon = await fetchPokemon();
 
-   const pokemon = await getPokemon();
+   if (!pokemon) {
+      redirect('/');
+   }
 
    return <PokemonInfoCard pokemon={pokemon} />;
 };
